@@ -66,6 +66,21 @@ func (me *DatasetAdapter) SupportsOrderByOnUpdate() bool {
 	return true
 }
 
+func (me *DatasetAdapter) CompoundExpressionSql(buf *goqu.SqlBuilder, compound goqu.CompoundExpression) error {
+	println("hello world")
+	switch compound.Type() {
+	case goqu.UNION:
+		buf.Write(me.UnionFragment)
+	case goqu.UNION_ALL:
+		buf.Write(me.UnionAllFragment)
+	case goqu.INTERSECT:
+		buf.Write(me.IntersectFragment)
+	case goqu.INTERSECT_ALL:
+		buf.Write(me.IntersectAllFragment)
+	}
+	return me.Literal(buf, compound.Rhs())
+}
+
 func newDatasetAdapter(ds *goqu.Dataset) goqu.Adapter {
 	def := goqu.NewDefaultAdapter(ds).(*goqu.DefaultAdapter)
 	def.PlaceHolderRune = placeholder_rune
